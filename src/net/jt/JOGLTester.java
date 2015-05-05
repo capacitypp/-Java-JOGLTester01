@@ -1,5 +1,7 @@
 package net.jt;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -14,12 +16,15 @@ import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.Animator;
+import com.jogamp.opengl.util.awt.TextRenderer;
 import com.jogamp.opengl.util.gl2.GLUT;
 
 public class JOGLTester implements GLEventListener{
 	private GL2 gl;
 	private GLUT glut;
 	private GLU glu;
+	private int width, height;
+	TextRenderer renderer;
 	//アニメーション(displayの周期的呼び出し)用
 	private Animator animator;
 	private float blue;
@@ -34,7 +39,8 @@ public class JOGLTester implements GLEventListener{
 		frame.add(canvas);
 		frame.setSize(640, 480);
 
-		animator = new Animator(canvas);
+		animator = new Animator(canvas); 
+		renderer = new TextRenderer(new Font("Tahoma", Font.PLAIN, 40), true, false);
 
 		frame.addWindowListener(new WindowAdapter() {
 			@Override
@@ -80,6 +86,10 @@ public class JOGLTester implements GLEventListener{
 		drawCube(-3.5F, -3.5F, 0, 1, 0.5, 0);
 		drawCube(-3.5F, 3.5F, 0, 0, 1, 0.5);
 		gl.glPopMatrix();
+		renderer.beginRendering(width, height);
+		renderer.setColor(0.5f, 0.5f, 0.5f, 1.0f);
+		renderer.draw("Text", 20, 80);
+		renderer.endRendering();
 	}
 
 	@Override
@@ -100,6 +110,8 @@ public class JOGLTester implements GLEventListener{
 	@Override
 	public void reshape(GLAutoDrawable drawable, int x, int y, int width,
 			int height) {
+		this.width = width;
+		this.height = height;
 		float ratio = (float)width / (float)height;
 		gl.glViewport(0, 0, width, height);
 
