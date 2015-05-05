@@ -1,12 +1,12 @@
 package net.jt;
 
-import java.awt.Color;
-import java.awt.Font;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+
+import net.jt.gl.FPS;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
@@ -24,6 +24,7 @@ public class JOGLTester implements GLEventListener{
 	private GLUT glut;
 	private GLU glu;
 	private int width, height;
+	private FPS fps;
 	TextRenderer renderer;
 	//アニメーション(displayの周期的呼び出し)用
 	private Animator animator;
@@ -39,8 +40,7 @@ public class JOGLTester implements GLEventListener{
 		frame.add(canvas);
 		frame.setSize(640, 480);
 
-		animator = new Animator(canvas); 
-		renderer = new TextRenderer(new Font("Tahoma", Font.PLAIN, 40), true, false);
+		animator = new Animator(canvas);
 
 		frame.addWindowListener(new WindowAdapter() {
 			@Override
@@ -54,6 +54,7 @@ public class JOGLTester implements GLEventListener{
 			}
 		});
 
+		fps = new FPS();
 		frame.setVisible(true);
 		animator.start();
 	}
@@ -86,10 +87,8 @@ public class JOGLTester implements GLEventListener{
 		drawCube(-3.5F, -3.5F, 0, 1, 0.5, 0);
 		drawCube(-3.5F, 3.5F, 0, 0, 1, 0.5);
 		gl.glPopMatrix();
-		renderer.beginRendering(width, height);
-		renderer.setColor(0.5f, 0.5f, 0.5f, 1.0f);
-		renderer.draw("Text", 20, 80);
-		renderer.endRendering();
+		fps.count();
+		fps.draw(width, height);
 	}
 
 	@Override
