@@ -1,7 +1,12 @@
 package net.jt;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+
+import jdk.internal.dynalink.beans.StaticClass;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
@@ -9,13 +14,18 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
+import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.gl2.GLUT;
 
 public class JOGLTester implements GLEventListener{
 	private GL2 gl;
 	private GLUT glut;
+	//アニメーション(displayの周期的呼び出し)用
+	private Animator animator;
+	private float blue;
 
 	public JOGLTester() {
+		blue = 0;
 		JFrame frame = new JFrame("JOGLTester");
 
 		GLCanvas canvas = new GLCanvas();
@@ -23,8 +33,23 @@ public class JOGLTester implements GLEventListener{
 
 		frame.add(canvas);
 		frame.setSize(300, 300);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		animator = new Animator(canvas);
+
+		frame.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				new Thread(new Runnable() {
+					public void run() {
+						animator.stop();
+						System.exit(0);
+					}
+				}).start();
+			}
+		});
+
 		frame.setVisible(true);
+		animator.start();
 	}
 
 	public void drawCube(float x, float y, float z, double r, double g, double b) {
@@ -46,9 +71,12 @@ public class JOGLTester implements GLEventListener{
 		drawCube(3.5F, 0, 0, 0, 0, 1);
 		drawCube(-3.5F, 0, 0, 1, 0, 0);
 		drawCube(0, 3.5F, 0, 1, 1, 0);
-//		drawCube(0, -3.5F, 0, 0, 1, 1);
+		drawCube(0, -3.5F, 0, 0, 1, 1);
 		drawCube(3.5F, 3.5F, 0, 1, 0, 1);
-		drawCube(3.5F, -3.5F, 0, 1, 1, 1);
+		//右下のブロックだけ周期的に色を変える
+		drawCube(3.5F, -3.5F, 0, 1, 1, blue);
+		blue += 0.001;
+		blue -= blue > 1 ? 1 : 0;
 		drawCube(-3.5F, -3.5F, 0, 1, 0.5, 0);
 		drawCube(-3.5F, 3.5F, 0, 0, 1, 0.5);
 		gl.glPopMatrix();
@@ -64,6 +92,8 @@ public class JOGLTester implements GLEventListener{
 	public void init(GLAutoDrawable drawable) {
 		gl = drawable.getGL().getGL2();
 		glut = new GLUT();
+		//背景を白にする
+		gl.glClearColor(1.0F, 1.0F, 1.0F, 1.0F);
 	}
 
 	@Override
