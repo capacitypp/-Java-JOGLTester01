@@ -6,20 +6,20 @@ import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import jdk.internal.dynalink.beans.StaticClass;
-
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
+import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.gl2.GLUT;
 
 public class JOGLTester implements GLEventListener{
 	private GL2 gl;
 	private GLUT glut;
+	private GLU glu;
 	//アニメーション(displayの周期的呼び出し)用
 	private Animator animator;
 	private float blue;
@@ -32,7 +32,7 @@ public class JOGLTester implements GLEventListener{
 		canvas.addGLEventListener(this);
 
 		frame.add(canvas);
-		frame.setSize(300, 300);
+		frame.setSize(640, 480);
 
 		animator = new Animator(canvas);
 
@@ -66,7 +66,7 @@ public class JOGLTester implements GLEventListener{
 		//gl.glTranslatef(0, 0, 10);
 		//gl.glTranslatef(1F, 0, 0);
 		gl.glPushMatrix();
-		gl.glTranslatef(0, 0, -5);
+		gl.glTranslatef(0, 0, -20);
 		drawCube(0, 0, 0, 0, 1, 0);
 		drawCube(3.5F, 0, 0, 0, 0, 1);
 		drawCube(-3.5F, 0, 0, 1, 0, 0);
@@ -92,6 +92,7 @@ public class JOGLTester implements GLEventListener{
 	public void init(GLAutoDrawable drawable) {
 		gl = drawable.getGL().getGL2();
 		glut = new GLUT();
+		glu = new GLU();
 		//背景を白にする
 		gl.glClearColor(1.0F, 1.0F, 1.0F, 1.0F);
 	}
@@ -99,16 +100,16 @@ public class JOGLTester implements GLEventListener{
 	@Override
 	public void reshape(GLAutoDrawable drawable, int x, int y, int width,
 			int height) {
-		float ratio = (float)height / (float)width;
+		float ratio = (float)width / (float)height;
 		gl.glViewport(0, 0, width, height);
 
 		gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
 		gl.glLoadIdentity();
-		gl.glFrustum(-1.0f, 1.0f, -ratio, ratio, 5.0f, 40.0f);
+		glu.gluPerspective(30.0, ratio, 1.0, 100.0);
 
 		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
 		gl.glLoadIdentity();
-		gl.glTranslatef(0.0f, 0.0f, -20.0f);
+		//gl.glTranslatef(0.0f, 0.0f, -20.0f);
 	}
 
 	public static void main(String[] args) {
